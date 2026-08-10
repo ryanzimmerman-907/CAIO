@@ -3,3 +3,9 @@ __pycache__/
 .DS_Store
 enriched_companies.prev.csv
 .venv/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
