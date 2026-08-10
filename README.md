@@ -79,6 +79,8 @@ authenticated.)
 A local web app to **search, sort, and filter** the enriched dataset, viewable
 from any device on your local network.
 
+![Streamlit UI screenshot](docs/ui-screenshot.png)
+
 One-time setup (creates a self-contained virtualenv with a modern Streamlit —
 the system/Anaconda Python on this machine is too old):
 
