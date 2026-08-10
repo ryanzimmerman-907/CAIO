@@ -3,8 +3,8 @@
 Class project: an AI agent that takes a bare spreadsheet of apparel/outdoor
 company names ([`starter_companies.csv`](starter_companies.csv)) and
 augments it with rich, verified data — official website, headquarters
-location, phone number, founding year, and industry description — writing
-the result to `enriched_companies.csv`.
+location, phone number, founding year, current CEO/founder, annual revenue,
+and industry description — writing the result to `enriched_companies.csv`.
 
 ## How the agent works
 
@@ -74,8 +74,45 @@ git push
 (Requires `gh auth login` to have been run once so `git push` is
 authenticated.)
 
+## Explore the data (Streamlit UI)
+
+A local web app to **search, sort, and filter** the enriched dataset, viewable
+from any device on your local network.
+
+One-time setup (creates a self-contained virtualenv with a modern Streamlit —
+the system/Anaconda Python on this machine is too old):
+
+```
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+Then launch it any time:
+
+```
+./run_ui.sh              # auto-uses .venv; serves on the local network
+```
+
+Streamlit prints a **Network URL** (e.g. `http://192.168.1.23:8501`) — open it
+on your phone or another laptop on the same Wi-Fi. The UI has a search bar,
+a sort control (plus click-to-sort column headers), sidebar filters (country,
+state/region, founding-year range, revenue-known), and a "download filtered
+CSV" button.
+
+## Weekly refresh
+
+Re-run the agent and see exactly what changed since last time with the
+`/refresh-companies` skill (in `.claude/skills/`). It snapshots the current
+data, re-enriches every company, and prints a **field-level changelog**
+(added/removed companies and cell-by-cell edits) via `diff_companies.py`.
+
 ## Files
 
 - `starter_companies.csv` — original bare list (company_name only)
 - `enrich_companies.py` — the enrichment agent
 - `enriched_companies.csv` — generated output (created after you run the agent)
+- `app.py` — Streamlit UI (search / sort / filter)
+- `run_ui.sh` — launches the UI on the local network
+- `diff_companies.py` — field-level changelog between two dataset versions
+- `requirements.txt` — Python deps for the UI (`streamlit`, `pandas`)
+- `.claude/skills/refresh-companies/` — the weekly-refresh skill
