@@ -9,3 +9,4 @@ enriched_companies.prev.csv
 *.tfstate
 *.tfstate.*
 crash.log
+infra/lambda.zip
