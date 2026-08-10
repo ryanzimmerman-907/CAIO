@@ -25,7 +25,7 @@ Execute from the CAIO project root (`/Users/ryanzimmerman/CAIO`).
 
 3. **Diff** — produce the field-level changelog:
    ```
-   python3 diff_companies.py enriched_companies.prev.csv enriched_companies.csv
+   python3 python/diff_companies_skill.py enriched_companies.prev.csv enriched_companies.csv
    ```
 
 4. **Summarize** the changelog for the user. Lead with the counts
@@ -45,4 +45,4 @@ Execute from the CAIO project root (`/Users/ryanzimmerman/CAIO`).
 ## Notes
 - The snapshot file `enriched_companies.prev.csv` is git-ignored scratch; never commit it.
 - Keep the summary concise: counts first, then grouped per-company changes.
-- To view the refreshed data in the browser afterward, run `streamlit run app.py --server.address=0.0.0.0`.
+- To view the refreshed data in the browser afterward, run `./python/run_ui.sh`.

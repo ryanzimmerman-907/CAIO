@@ -20,7 +20,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-DATA = Path(__file__).parent / "enriched_companies.csv"
+DATA = Path(__file__).resolve().parent.parent / "enriched_companies.csv"
 
 st.set_page_config(page_title="CAIO — Outdoor Companies", page_icon="🏔️", layout="wide")
 

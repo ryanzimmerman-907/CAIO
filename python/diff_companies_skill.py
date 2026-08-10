@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
-diff_companies.py — field-level changelog between two enriched_companies CSVs.
+diff_companies_skill.py — helper script for the /refresh-companies SKILL.
 
-Used by the /refresh-companies skill to summarize exactly what changed between
-the previous dataset and a freshly enriched one.
+This is the script the `/refresh-companies` skill runs. It produces the
+field-level changelog between two enriched_companies CSVs (the previous
+snapshot vs. a freshly enriched one) that the skill reports back to you.
 
-    python3 diff_companies.py enriched_companies.prev.csv enriched_companies.csv
+The skill *definition* lives in `.claude/skills/refresh-companies/SKILL.md`;
+this file is the diff tool that skill invokes.
+
+    python3 python/diff_companies_skill.py enriched_companies.prev.csv enriched_companies.csv
 """
 from __future__ import annotations
 

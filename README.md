@@ -6,6 +6,23 @@ augments it with rich, verified data — official website, headquarters
 location, phone number, founding year, current CEO/founder, annual revenue,
 and industry description — writing the result to `enriched_companies.csv`.
 
+## Project layout
+
+```
+CAIO/
+├── enrich_companies.py        # the enrichment agent (main script)
+├── starter_companies.csv      # input: bare list of company names
+├── enriched_companies.csv     # output: verified, enriched dataset
+├── agent-ui.png          # screenshot of the Streamlit UI
+├── README.md
+├── python/                    # supporting scripts
+│   ├── app.py                 #   Streamlit UI (search / sort / filter)
+│   ├── run_ui.sh              #   launches the UI on the local network
+│   └── diff_companies_skill.py#   diff tool used by the refresh skill
+└── .claude/skills/refresh-companies/
+    └── SKILL.md               # the /refresh-companies skill definition
+```
+
 ## How the agent works
 
 `enrich_companies.py` reads each company name and, for every row, launches
@@ -17,7 +34,7 @@ CSV row. Several companies are looked up in parallel to keep the whole sheet
 fast.
 
 This uses your existing Claude subscription through the CLI — there's no
-separate API key, and the script only depends on the Python standard
+separate API key, and the agent script only depends on the Python standard
 library (no `pip install` required).
 
 ## One-time setup
@@ -52,16 +69,6 @@ that fails after retries is marked `FAILED: <reason>` in the
 `enrichment_status` column of the output — safe to re-run just those rows
 later.
 
-## Easy run alias
-
-Add this to your shell profile for a one-word run command:
-
-```bash
-alias CAIORun='cd ~/CAIO && python3 enrich_companies.py'
-```
-
-Then just type `CAIORun` in any new terminal.
-
 ## Publishing updates to GitHub
 
 ```
@@ -79,20 +86,20 @@ authenticated.)
 A local web app to **search, sort, and filter** the enriched dataset, viewable
 from any device on your local network.
 
-![Streamlit UI screenshot](docs/ui-screenshot.png)
+![Streamlit UI screenshot](agent-ui.png)
 
 One-time setup (creates a self-contained virtualenv with a modern Streamlit —
 the system/Anaconda Python on this machine is too old):
 
 ```
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install streamlit pandas
 ```
 
 Then launch it any time:
 
 ```
-./run_ui.sh              # auto-uses .venv; serves on the local network
+./python/run_ui.sh       # auto-uses .venv; serves on the local network
 ```
 
 Streamlit prints a **Network URL** (e.g. `http://192.168.1.23:8501`) — open it
@@ -104,17 +111,8 @@ CSV" button.
 ## Weekly refresh
 
 Re-run the agent and see exactly what changed since last time with the
-`/refresh-companies` skill (in `.claude/skills/`). It snapshots the current
-data, re-enriches every company, and prints a **field-level changelog**
-(added/removed companies and cell-by-cell edits) via `diff_companies.py`.
-
-## Files
-
-- `starter_companies.csv` — original bare list (company_name only)
-- `enrich_companies.py` — the enrichment agent
-- `enriched_companies.csv` — generated output (created after you run the agent)
-- `app.py` — Streamlit UI (search / sort / filter)
-- `run_ui.sh` — launches the UI on the local network
-- `diff_companies.py` — field-level changelog between two dataset versions
-- `requirements.txt` — Python deps for the UI (`streamlit`, `pandas`)
-- `.claude/skills/refresh-companies/` — the weekly-refresh skill
+`/refresh-companies` skill (defined in
+[`.claude/skills/refresh-companies/SKILL.md`](.claude/skills/refresh-companies/SKILL.md)).
+It snapshots the current data, re-enriches every company, and prints a
+**field-level changelog** (added/removed companies and cell-by-cell edits)
+via `python/diff_companies_skill.py`.
