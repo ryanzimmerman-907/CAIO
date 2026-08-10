@@ -6,6 +6,9 @@ augments it with rich, verified data — official website, headquarters
 location, phone number, founding year, current CEO/founder, annual revenue,
 and industry description — writing the result to `enriched_companies.csv`.
 
+The enriched data is browsable in a local **Streamlit UI** and deployable to
+**AWS** (DynamoDB, provisioned with Terraform).
+
 ## Project layout
 
 ```
@@ -13,12 +16,18 @@ CAIO/
 ├── enrich_companies.py        # the enrichment agent (main script)
 ├── starter_companies.csv      # input: bare list of company names
 ├── enriched_companies.csv     # output: verified, enriched dataset
-├── agent-ui.png          # screenshot of the Streamlit UI
+├── agent-ui.png               # screenshot of the Streamlit UI
 ├── README.md
 ├── python/                    # supporting scripts
 │   ├── app.py                 #   Streamlit UI (search / sort / filter)
 │   ├── run_ui.sh              #   launches the UI on the local network
-│   └── diff_companies_skill.py#   diff tool used by the refresh skill
+│   ├── diff_companies_skill.py#   diff tool used by the refresh skill
+│   └── load_to_dynamo.py      #   loads the CSV into DynamoDB
+├── infra/                     # Terraform (AWS) — the NoSQL data layer
+│   ├── main.tf                #   DynamoDB table (on-demand billing)
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── README.md              #   deploy / load / destroy instructions
 └── .claude/skills/refresh-companies/
     └── SKILL.md               # the /refresh-companies skill definition
 ```
@@ -107,6 +116,34 @@ on your phone or another laptop on the same Wi-Fi. The UI has a search bar,
 a sort control (plus click-to-sort column headers), sidebar filters (country,
 state/region, founding-year range, revenue-known), and a "download filtered
 CSV" button.
+
+## Cloud deployment (AWS + Terraform)
+
+The enriched dataset can be pushed to a **NoSQL database (Amazon DynamoDB)**,
+provisioned as infrastructure-as-code with **Terraform**. Everything lives in
+[`infra/`](infra/) and fits the AWS free tier (on-demand billing, ~$0 at this
+scale). Full instructions are in [`infra/README.md`](infra/README.md); the short
+version:
+
+```
+# 1. one-time: AWS account + creds
+aws configure                    # Access Key ID / Secret / us-east-1 / json
+
+# 2. provision the DynamoDB table
+cd infra && terraform init && terraform apply
+
+# 3. load the 50 companies into it
+cd .. && .venv/bin/pip install boto3
+.venv/bin/python python/load_to_dynamo.py --table caio-companies --region us-east-1
+
+# 4. tear it all down when finished
+cd infra && terraform destroy
+```
+
+Terraform state (`*.tfstate`) and the `.terraform/` cache are git-ignored.
+
+> **Roadmap:** serverless compute (AWS Lambda + API Gateway to serve the table
+> as a search API) is a planned next phase.
 
 ## Weekly refresh
 
