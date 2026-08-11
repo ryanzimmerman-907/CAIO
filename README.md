@@ -6,8 +6,9 @@ augments it with rich, verified data — official website, headquarters
 location, phone number, founding year, current CEO/founder, annual revenue,
 and industry description — writing the result to `enriched_companies.csv`.
 
-The enriched data is browsable in a local **Streamlit UI** and deployable to
-**AWS** (DynamoDB, provisioned with Terraform).
+The enriched data is browsable in a local **Streamlit UI** and deployed to
+**AWS** — stored in **DynamoDB** and served by a **serverless Lambda API**, all
+provisioned with **Terraform**.
 
 ## Project layout
 
@@ -129,7 +130,7 @@ version:
 # 1. one-time: AWS account + creds
 aws configure                    # Access Key ID / Secret / us-east-1 / json
 
-# 2. provision the DynamoDB table
+# 2. provision the DynamoDB table + serverless Lambda API
 cd infra && terraform init && terraform apply
 
 # 3. load the 50 companies into it
@@ -142,8 +143,22 @@ cd infra && terraform destroy
 
 Terraform state (`*.tfstate`) and the `.terraform/` cache are git-ignored.
 
-> **Roadmap:** serverless compute (AWS Lambda + API Gateway to serve the table
-> as a search API) is a planned next phase.
+### Serverless API (AWS Lambda)
+
+A **Lambda** function (`caio-companies-api`) serves the DynamoDB table as a
+read-only JSON API, exposed through a **Lambda Function URL** — provisioned by
+[`infra/lambda.tf`](infra/lambda.tf) with a least-privilege role (read-only on
+the one table). Supported query parameters:
+
+| Param | Meaning |
+|---|---|
+| `search` | substring match across all fields |
+| `country` / `state` | filter by HQ country / region |
+| `sort` / `order` | sort field + `asc` / `desc` |
+| `limit` | max rows returned |
+
+Example: `GET <function-url>/?search=utah&limit=3` → `{ count, total, companies[] }`.
+The endpoint is printed by `terraform output api_url`.
 
 ## Weekly refresh
 
