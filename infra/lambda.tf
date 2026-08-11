@@ -68,6 +68,16 @@ resource "aws_lambda_function_url" "api" {
   }
 }
 
+# A public (authorization_type = NONE) Function URL still needs an explicit
+# resource-based permission allowing anonymous invoke.
+resource "aws_lambda_permission" "public_url" {
+  statement_id           = "AllowPublicFunctionUrl"
+  action                 = "lambda:InvokeFunctionUrl"
+  function_name          = aws_lambda_function.api.function_name
+  principal              = "*"
+  function_url_auth_type = "NONE"
+}
+
 output "api_url" {
   description = "Public URL of the serve-only companies API"
   value       = aws_lambda_function_url.api.function_url
